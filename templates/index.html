@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whop Automation Dashboard</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 20px;
+            color: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .header p {
+            font-size: 0.95rem;
+            color: #94a3b8;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge.success { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge.warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge.info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        
+        /* Cards */
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 1px solid #334155;
+            border-top: 3px solid #667eea;
+        }
+        
+        .stat-card.green { border-top-color: #10b981; }
+        .stat-card.red { border-top-color: #ef4444; }
+        .stat-card.blue { border-top-color: #3b82f6; }
+        .stat-card.orange { border-top-color: #f59e0b; }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+        
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            background: #0f172a;
+            color: #f8fafc;
+            transition: all 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: #1e293b;
+        }
+        
+        small {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            display: block;
+            margin-top: 4px;
+        }
+        
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid;
+        }
+        
+        .alert.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border-color: #10b981;
+        }
+        
+        .alert.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border-color: #f59e0b;
+        }
+        
+        .alert.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        /* Logs */
+        .logs-container {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            height: 450px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #334155;
+        }
+        
+        .logs-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .logs-container::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        
+        .logs-container::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        
+        .log-entry {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 3px solid;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        .log-entry.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            color: #60a5fa;
+        }
+        
+        .log-entry.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+            color: #10b981;
+        }
+        
+        .log-entry.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+        
+        .log-timestamp {
+            opacity: 0.6;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        
+        .status-badge.processing {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .status-badge.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .status-badge.idle {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="background: #1e293b; border-radius: 15px; padding: 40px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border: 1px solid #334155;">
+            <div style="text-align: center; margin-bottom: 35px;">
+                <div style="font-size: 3.5rem; margin-bottom: 15px;">🔐</div>
+                <h1 style="color: #f8fafc; font-size: 1.8rem; margin-bottom: 8px; font-weight: 700;">Whop Automation</h1>
+                <p style="color: #94a3b8; font-size: 0.95rem;">Secure Admin Login</p>
+            </div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" style="display: flex; flex-direction: column; gap: 18px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">📧 Email</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        placeholder="admin@whopcharge.com"
+                        style="padding: 12px 14px; border: 1px solid #334155; border-radius: 8px; font-size: 0.95rem; background: #0f172a; color: #f8fafc; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor = '#475569'"
+                        onmouseout="this.style.borderColor = '#334155'"
+                        onfocus="this.style.borderColor = '#667eea'; this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.2)'; this.style.background = '#1e293b'"
+                        onblur="this.style.borderColor = '#334155'; this.style.boxShadow = 'none'; this.style.background = '#0f172a'"
+                        required
+                    >
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">🔑 Password</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        placeholder="Enter password"
+                        style="padding: 12px 14px; border: 1px solid #334155; border-radius: 8px; font-size: 0.95rem; background: #0f172a; color: #f8fafc; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor = '#475569'"
+                        onmouseout="this.style.borderColor = '#334155'"
+                        onfocus="this.style.borderColor = '#667eea'; this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.2)'; this.style.background = '#1e293b'"
+                        onblur="this.style.borderColor = '#334155'; this.style.boxShadow = 'none'; this.style.background = '#0f172a'"
+                        required
+                    >
+                </div>
+                
+                <div id="loginError" style="display: none; background: rgba(239, 68, 68, 0.15); border-left: 4px solid #ef4444; color: #fca5a5; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-top: 5px;"></div>
+                
+                <button 
+                    type="submit" 
+                    style="padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 15px;"
+                    onmouseover="this.style.background = '#5568d3'; this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)'"
+                    onmouseout="this.style.background = '#667eea'; this.style.transform = 'translateY(0)'; this.style.boxShadow = 'none'"
+                >
+                    🔓 Login
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 25px; padding-top: 25px; border-top: 1px solid #334155;">
+                <p style="color: #64748b; font-size: 0.8rem; margin: 0;">
+                    🔒 Secure authentication required
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard -->
+    <div id="dashboardPage" style="display: none;">
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Whop Payment Automation</h1>
+            <p>Automated batch payment processing for your business</p>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div style="display: flex; gap: 10px;">
+                <span class="badge info" id="statusBadge">⏳ Ready</span>
+                <span class="badge" id="modeBadge" style="display: none;">Test Mode</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="resetForm()" style="padding: 8px 16px; background: #334155; color: #cbd5e1; border: 1px solid #475569; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">🔄 Reset</button>
+                <button onclick="logout()" style="padding: 8px 16px; background: #ef4444; color: white; border: 1px solid #dc2626; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">🚪 Logout</button>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="layout">
+            <!-- Configuration Panel -->
+            <div class="card">
+                <div class="card-title">⚙️ Configuration</div>
+                
+                <div class="form-group">
+                    <label for="api_key">API Key</label>
+                    <input 
+                        type="password" 
+                        id="api_key" 
+                        placeholder="apik_xxxxxxxxxxxxx"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_id">Company ID</label>
+                    <input 
+                        type="text" 
+                        id="company_id" 
+                        placeholder="biz_xxxxxxxxxxxxx"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="plan_id">Plan ID</label>
+                    <input 
+                        type="text" 
+                        id="plan_id" 
+                        placeholder="plan_xxxxxxxxxxxxx"
+                    >
+                </div>
+                
+                <button class="btn btn-primary" id="loadMembersBtn" onclick="loadMembers()">
+                    👥 Load Members
+                </button>
+            </div>
+            
+            <!-- Dashboard Panel -->
+            <div class="card">
+                <div class="card-title">📊 Dashboard</div>
+                
+                <div id="statusBadgeContainer" class="status-badge idle">
+                    ⏳ Ready
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Members Found</div>
+                        <div class="stat-value" id="membersCount">0</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-label">Success</div>
+                        <div class="stat-value" id="successCount">0</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-label">Failed</div>
+                        <div class="stat-value" id="failedCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Members List Card -->
+        <div class="card" id="membersCard" style="display: none;">
+            <div class="card-title">👥 Select Members to Charge</div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button onclick="selectAllMembers()" class="btn btn-primary" style="flex: 1; background: #10b981;">
+                    ✅ Select All
+                </button>
+                <button onclick="deselectAllMembers()" class="btn btn-primary" style="flex: 1; background: #ef4444;">
+                    ❌ Deselect All
+                </button>
+            </div>
+            
+            <div style="
+                background: #0f172a;
+                border: 1px solid #334155;
+                border-radius: 10px;
+                max-height: 400px;
+                overflow-y: auto;
+                padding: 10px;
+                margin-bottom: 20px;
+            " id="membersList">
+                <div style="padding: 20px; text-align: center; color: #94a3b8;">
+                    <div class="loading-spinner" style="margin: 0 auto; margin-bottom: 10px;"></div>
+                    Loading members...
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="startBtn" onclick="startProcessing()">
+                ⚡ Charge Selected Members (<span id="selectedCount">0</span>)
+            </button>
+        </div>
+        
+        <!-- Logs Panel -->
+        <div class="card">
+            <div class="card-title">📋 Processing Logs</div>
+            <div class="logs-container" id="logsContainer">
+                <div class="log-entry info">
+                    <span class="log-timestamp">[System]</span>
+                    Waiting for input... Configure your credentials and click "Load Members"
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <script>
+        // Authentication credentials
+        const ADMIN_EMAIL = 'admin@whopcharge.com';
+        const ADMIN_PASSWORD = 'SecureWhop2024!@#';
+        
+        // Check if already logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('whopcharge_authenticated');
+            if (isLoggedIn === 'true') {
+                showDashboard();
+            } else {
+                showLoginPage();
+            }
+        });
+        
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboardPage').style.display = 'none';
+        }
+        
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+        }
+        
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                localStorage.setItem('whopcharge_authenticated', 'true');
+                errorDiv.style.display = 'none';
+                showDashboard();
+            } else {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '❌ Invalid email or password';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('whopcharge_authenticated');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            showLoginPage();
+        }
+        
+        let sessionId = null;
+        let pollingInterval = null;
+        let allMembers = [];
+        let selectedMembers = [];
+        
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        async function loadMembers() {
+            const api_key = document.getElementById('api_key').value;
+            const company_id = document.getElementById('company_id').value;
+            const plan_id = document.getElementById('plan_id').value;
+            
+            if (!api_key || !company_id || !plan_id) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            document.getElementById('loadMembersBtn').disabled = true;
+            document.getElementById('loadMembersBtn').innerHTML = '<span class="loading-spinner"></span>Loading...';
+            
+            try {
+                const response = await fetch('/api/get-members', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        api_key: api_key,
+                        company_id: company_id
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    allMembers = data.members;
+                    selectedMembers = allMembers.map(m => m.id); // Select all by default
+                    
+                    displayMembers();
+                    document.getElementById('membersCard').style.display = 'block';
+                    document.getElementById('membersCount').textContent = data.total;
+                    
+                    addLog('✅ Loaded ' + data.total + ' members successfully', 'success');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading members: ' + error.message);
+            } finally {
+                document.getElementById('loadMembersBtn').disabled = false;
+                document.getElementById('loadMembersBtn').innerHTML = '👥 Load Members';
+            }
+        }
+        
+        function displayMembers() {
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = allMembers.map((member, idx) => `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    padding: 16px;
+                    background: ${selectedMembers.includes(member.id) ? 'rgba(102, 126, 234, 0.15)' : '#1e293b'};
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                    border: 2px solid ${selectedMembers.includes(member.id) ? '#667eea' : '#334155'};
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " onclick="toggleMember('${member.id}')" onmouseenter="this.style.background = '${selectedMembers.includes(member.id) ? 'rgba(102, 126, 234, 0.25)' : '#334155'}';" onmouseleave="this.style.background = '${selectedMembers.includes(member.id) ? 'rgba(102, 126, 234, 0.15)' : '#1e293b'}';">
+                    <div style="
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 6px;
+                        border: 2px solid ${selectedMembers.includes(member.id) ? '#667eea' : '#64748b'};
+                        background: ${selectedMembers.includes(member.id) ? '#667eea' : 'transparent'};
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        transition: all 0.2s;
+                    ">
+                        ${selectedMembers.includes(member.id) ? '<span style="color: #fff; font-size: 14px; font-weight: 700;">✓</span>' : ''}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="color: #f8fafc; font-weight: 700; font-size: 1rem; margin-bottom: 4px;">${member.name || '—'}</div>
+                        <div style="color: #60a5fa; font-size: 0.9rem; font-family: 'Monaco', monospace;">${member.email || '—'}</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID: ${member.id.substring(0, 20)}...</div>
+                    </div>
+                    <div style="
+                        text-align: right;
+                        flex-shrink: 0;
+                        padding: 8px 12px;
+                        background: ${selectedMembers.includes(member.id) ? 'rgba(102, 126, 234, 0.2)' : 'rgba(148, 163, 184, 0.1)'};
+                        border-radius: 6px;
+                        border: 1px solid ${selectedMembers.includes(member.id) ? '#667eea' : '#475569'};
+                    ">
+                        <div style="color: ${selectedMembers.includes(member.id) ? '#667eea' : '#94a3b8'}; font-weight: 600; font-size: 0.8rem;">
+                            ${selectedMembers.includes(member.id) ? '✅ SELECTED' : '○ SELECT'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateSelectedCount();
+        }
+        
+        function toggleMember(memberId) {
+            if (selectedMembers.includes(memberId)) {
+                selectedMembers = selectedMembers.filter(id => id !== memberId);
+            } else {
+                selectedMembers.push(memberId);
+            }
+            displayMembers();
+        }
+        
+        function selectAllMembers() {
+            selectedMembers = allMembers.map(m => m.id);
+            displayMembers();
+        }
+        
+        function deselectAllMembers() {
+            selectedMembers = [];
+            displayMembers();
+        }
+        
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').textContent = selectedMembers.length;
+        }
+        
+        function startProcessing() {
+            if (selectedMembers.length === 0) {
+                alert('Please select at least one member to charge');
+                return;
+            }
+            
+            sessionId = generateSessionId();
+            
+            // Disable inputs
+            document.getElementById('loadMembersBtn').disabled = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').innerHTML = '<span class="loading-spinner"></span>Processing...';
+            
+            // Update status
+            updateStatus('processing', '⏳ Processing...');
+            
+            // Send request to backend
+            fetch('/api/process-payments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    api_key: document.getElementById('api_key').value,
+                    company_id: document.getElementById('company_id').value,
+                    plan_id: document.getElementById('plan_id').value,
+                    session_id: sessionId,
+                    selected_members: selectedMembers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    startPolling();
+                } else {
+                    alert('Error: ' + data.error);
+                    resetForm();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+                resetForm();
+            });
+        }
+        
+        function startPolling() {
+            pollingInterval = setInterval(() => {
+                fetch(`/api/session/${sessionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update stats
+                        document.getElementById('membersCount').textContent = data.members_found || 0;
+                        document.getElementById('successCount').textContent = data.payments_created || 0;
+                        document.getElementById('failedCount').textContent = data.payments_failed || 0;
+                        
+                        // Update status
+                        updateStatus(data.status, getStatusText(data.status));
+                        
+                        // Update logs
+                        updateLogs(data.logs || []);
+                        
+                        // Stop polling if completed
+                        if (data.status === 'completed' || data.status === 'error') {
+                            clearInterval(pollingInterval);
+                            document.getElementById('loadMembersBtn').disabled = false;
+                            document.getElementById('startBtn').disabled = false;
+                            document.getElementById('startBtn').innerHTML = '⚡ Charge Selected Members (<span id="selectedCount">' + selectedMembers.length + '</span>)';
+                        }
+                    })
+                    .catch(error => console.error('Polling error:', error));
+            }, 1000);
+        }
+        
+        function updateStatus(status, text) {
+            const badge = document.getElementById('statusBadgeContainer');
+            badge.className = `status-badge ${status}`;
+            badge.textContent = text;
+        }
+        
+        function getStatusText(status) {
+            switch(status) {
+                case 'processing': return '⏳ Processing...';
+                case 'completed': return '✅ Completed';
+                case 'error': return '❌ Error';
+                default: return '⏳ Ready';
+            }
+        }
+        
+        function updateLogs(logs) {
+            const container = document.getElementById('logsContainer');
+            container.innerHTML = logs.map(log => {
+                const timestamp = new Date(log.timestamp).toLocaleTimeString();
+                return `<div class="log-entry ${log.type}">
+                    <span class="log-timestamp">[${timestamp}]</span>
+                    ${log.message}
+                </div>`;
+            }).join('');
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('logsContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `
+                <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+                ${message}
+            `;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function resetForm() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            document.getElementById('api_key').value = '';
+            document.getElementById('company_id').value = '';
+            document.getElementById('plan_id').value = '';
+            document.getElementById('loadMembersBtn').disabled = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('startBtn').innerHTML = '⚡ Charge Selected Members (<span id="selectedCount">0</span>)';
+            
+            document.getElementById('membersCount').textContent = '0';
+            document.getElementById('successCount').textContent = '0';
+            document.getElementById('failedCount').textContent = '0';
+            
+            document.getElementById('membersCard').style.display = 'none';
+            
+            updateStatus('idle', '⏳ Ready');
+            
+            allMembers = [];
+            selectedMembers = [];
+            
+            document.getElementById('logsContainer').innerHTML = `<div class="log-entry info">
+                <span class="log-timestamp">[System]</span>
+                Waiting for input... Configure your credentials and click "Load Members"
+            </div>`;
+        }
+    </script>
+</body>
+</html>
+
